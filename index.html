@@ -1,0 +1,235 @@
+# index.html
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>GET KEY</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at top, #263b91, transparent 40%),
+        linear-gradient(135deg, #05050c, #111936);
+      color: white;
+    }
+
+    .card {
+      width: 90%;
+      max-width: 430px;
+      padding: 35px 25px;
+      text-align: center;
+      border-radius: 25px;
+      background: rgba(15, 20, 45, .88);
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: 0 20px 60px rgba(0,0,0,.5);
+    }
+
+    .logo {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 22px;
+      font-size: 32px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #00eaff, #725cff);
+      box-shadow: 0 0 30px rgba(0,220,255,.3);
+    }
+
+    h1 {
+      font-size: 30px;
+      margin-bottom: 10px;
+    }
+
+    .blue {
+      color: #00eaff;
+    }
+
+    p {
+      color: #aab3cf;
+      line-height: 1.6;
+      font-size: 14px;
+      margin-bottom: 25px;
+    }
+
+    .getkey {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 14px;
+      color: white;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(90deg, #00bcd4, #665cff);
+      box-shadow: 0 10px 25px rgba(70,100,255,.3);
+      transition: .2s;
+    }
+
+    .getkey:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.15);
+    }
+
+    .getkey:active {
+      transform: scale(.98);
+    }
+
+    .footer {
+      margin-top: 25px;
+      color: #68718e;
+      font-size: 11px;
+    }
+
+    #result {
+      display: none;
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 14px;
+      background: rgba(0,0,0,.25);
+    }
+
+    #key {
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.08);
+      word-break: break-all;
+      font-weight: bold;
+      color: #00eaff;
+    }
+
+    .copy {
+      width: 100%;
+      padding: 12px;
+      border: 0;
+      border-radius: 10px;
+      color: white;
+      font-weight: bold;
+      background: #18a957;
+      cursor: pointer;
+    }
+
+    #status {
+      margin-top: 10px;
+      font-size: 13px;
+      color: #aab3cf;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+
+    <div class="logo">K</div>
+
+    <h1><span class="blue">GET KEY</span></h1>
+
+    <p>
+      Nhấn nút bên dưới để nhận key.
+    </p>
+
+    <button class="getkey" id="getBtn" onclick="getKey()">
+      🔑 GET KEY
+    </button>
+
+    <div id="result">
+      <div>🔑 Key của bạn:</div>
+
+      <div id="key">---</div>
+
+      <button class="copy" onclick="copyKey()">
+        📋 COPY KEY
+      </button>
+
+      <div id="status"></div>
+    </div>
+
+    <div class="footer">
+      © 2026 GetKey System
+    </div>
+
+  </div>
+
+  <script>
+    let currentKey = "";
+
+    async function getKey() {
+      const btn = document.getElementById("getBtn");
+      const result = document.getElementById("result");
+      const keyBox = document.getElementById("key");
+      const status = document.getElementById("status");
+
+      btn.disabled = true;
+      btn.textContent = "⏳ Đang lấy key...";
+
+      try {
+        const response = await fetch(
+          "/.netlify/functions/getkey"
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          throw new Error("API lỗi");
+        }
+
+        currentKey = data.key;
+
+        keyBox.textContent = currentKey;
+
+        result.style.display = "block";
+
+        status.textContent =
+          "✅ Lấy key thành công!";
+
+        btn.textContent = "🔄 LẤY KEY MỚI";
+
+      } catch (error) {
+
+        result.style.display = "block";
+
+        keyBox.textContent = "❌ API lỗi";
+
+        status.textContent =
+          "Không kết nối được API GetKey.";
+
+        btn.textContent = "🔄 THỬ LẠI";
+      }
+
+      btn.disabled = false;
+    }
+
+    async function copyKey() {
+      if (!currentKey) return;
+
+      try {
+        await navigator.clipboard.writeText(currentKey);
+
+        document.getElementById("status").textContent =
+          "✅ Đã copy key!";
+      } catch {
+        document.getElementById("status").textContent =
+          "❌ Không thể copy key.";
+      }
+    }
+  </script>
+
+</body>
+  </html>
